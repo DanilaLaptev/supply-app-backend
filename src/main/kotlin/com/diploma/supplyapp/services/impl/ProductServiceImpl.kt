@@ -7,7 +7,9 @@ import com.diploma.supplyapp.services.ProductService
 import org.springframework.stereotype.Service
 
 @Service
-class ProductServiceImpl(val productRepository: ProductRepository) : ProductService{
+class ProductServiceImpl(
+        val productRepository: ProductRepository
+) : ProductService{
     override fun getAllProducts(): List<ProductDto> {
         return productRepository.findAll().map {ProductDto.fromEntity (it)}
     }

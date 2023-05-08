@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*
 class ProductController(
         val productService: ProductService
 ) {
-
     @GetMapping("/")
     fun getAllProducts() : ResponseEntity<List<ProductDto>> {
         return ResponseEntity.ok(productService.getAllProducts())
@@ -20,5 +19,4 @@ class ProductController(
     fun createProduct(@RequestBody productDto: ProductDto) : ResponseEntity<ProductDto> {
         return ResponseEntity.ok(productService.createProduct(productDto))
     }
-
 }

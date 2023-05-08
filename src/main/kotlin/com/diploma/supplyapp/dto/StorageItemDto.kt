@@ -11,7 +11,6 @@ data class StorageItemDto (
         var product: ProductDto?
 ) {
     companion object {
-
         fun fromEntity(storageItem: StorageItem) :StorageItemDto {
             val product = if (storageItem.product == null) null else ProductDto.fromEntity(storageItem.product!!)
             return StorageItemDto(
@@ -23,6 +22,5 @@ data class StorageItemDto (
                     product = product
             )
         }
-
     }
 }

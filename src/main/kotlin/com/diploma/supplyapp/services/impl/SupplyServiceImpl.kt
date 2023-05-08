@@ -4,9 +4,11 @@ import com.diploma.supplyapp.dto.ProductDto
 import com.diploma.supplyapp.dto.StatusDto
 import com.diploma.supplyapp.dto.StorageItemDto
 import com.diploma.supplyapp.dto.SupplyDto
+import com.diploma.supplyapp.entities.OrganizationBranch
 import com.diploma.supplyapp.entities.StorageItem
 import com.diploma.supplyapp.entities.Supply
 import com.diploma.supplyapp.entities.SupplyStateHistory
+import com.diploma.supplyapp.enums.OrganizationRole
 import com.diploma.supplyapp.enums.SupplyStatus
 import com.diploma.supplyapp.repositories.OrganizationBranchRepository
 import com.diploma.supplyapp.repositories.StorageItemsRepository
@@ -21,7 +23,7 @@ class SupplyServiceImpl (
         val supplyRepository: SupplyRepository,
         val storageItemsRepository: StorageItemsRepository,
         val organizationBranchRepository: OrganizationBranchRepository
-): SupplyService{
+): SupplyService {
 
     override fun createSupply(dto: SupplyDto, id: Long) {
         val organizationBranch = organizationBranchRepository.findByIdAndOrganizationId(dto.toBranch!!, id).orElseThrow()
@@ -86,32 +88,33 @@ class SupplyServiceImpl (
     override fun declineSupply(organizationId: Long, id: Long, organizationBranchId: Long) {
         val organizationBranch = organizationBranchRepository.findByIdAndOrganizationId(organizationBranchId, organizationId).orElseThrow()
         val supply = supplyRepository.findSupplyByIdAndOrganizationBranchId(organizationBranchId, id)
-        val status = supply.supplyStateHistory.stream().sorted { o1, o2 -> o2.time.compareTo(o1.time) }.findFirst().get().status
-        if (status == SupplyStatus.PENDING) {
-            val supplyHistory = SupplyStateHistory(SupplyStatus.DENIED, null)
-            supply.supplyStateHistory = supply.supplyStateHistory.plus(supplyHistory)
-            supplyHistory.supply = supply
+
+        decline(supply, organizationBranch)
+    }
+
+    override fun declineSuppliesGroup(organizationId: Long, groupId: Long, organizationBranchId: Long) {
+        val organizationBranch = organizationBranchRepository.findByIdAndOrganizationId(organizationBranchId, organizationId).orElseThrow()
+
+        val supplies = supplyRepository.findSuppliesByGroupIdAndOrganizationBranchId(organizationBranchId, groupId)
+        supplies.forEach { supply ->
+            decline(supply, organizationBranch)
         }
-        supplyRepository.save(supply)
     }
 
     override fun acceptSupply(organizationId: Long, id: Long, organizationBranchId: Long) {
         val organizationBranch = organizationBranchRepository.findByIdAndOrganizationId(organizationBranchId, organizationId).orElseThrow()
+
         val supply = supplyRepository.findSupplyByIdAndOrganizationBranchId(organizationBranchId, id)
-        val status = supply.supplyStateHistory.stream().sorted { o1, o2 -> o2.time.compareTo(o1.time) }.findFirst().get().status
-        if (status == SupplyStatus.PENDING) {
-            val supplyHistory = SupplyStateHistory(SupplyStatus.APPROVED, null)
-            supply.supplyStateHistory = supply.supplyStateHistory.plus(supplyHistory)
-            supplyHistory.supply = supply
+        acceptSupply(supply, organizationBranch)
+    }
+
+    override fun acceptSuppliesGroup(organizationId: Long, groupId: Long, organizationBranchId: Long) {
+        val organizationBranch = organizationBranchRepository.findByIdAndOrganizationId(organizationBranchId, organizationId).orElseThrow()
+
+        val supplies = supplyRepository.findSuppliesByGroupIdAndOrganizationBranchId(organizationBranchId, groupId)
+        supplies.forEach { supply ->
+            acceptSupply(supply, organizationBranch)
         }
-        else if(status == SupplyStatus.DELIVERED) {
-            val supplyHistory = SupplyStateHistory(SupplyStatus.SUPPLY_ACCEPTED, null)
-            supply.supplyStateHistory = supply.supplyStateHistory.plus(supplyHistory)
-            supplyHistory.supply = supply
-            supply.toStorageItem.quantity = supply.toStorageItem.quantity!! + supply.quantity
-            storageItemsRepository.save(supply.toStorageItem)
-        }
-        supplyRepository.save(supply)
     }
 
     @Scheduled(cron = "*/15 * * * * *")
@@ -140,4 +143,30 @@ class SupplyServiceImpl (
         }
     }
 
+    private fun acceptSupply(supply: Supply, organizationBranch: OrganizationBranch) {
+        val status = supply.supplyStateHistory.stream().sorted { o1, o2 -> o2.time.compareTo(o1.time) }.findFirst().get().status
+        if (status == SupplyStatus.PENDING && organizationBranch.organization?.role == OrganizationRole.SUPPLIER) {
+            val supplyHistory = SupplyStateHistory(SupplyStatus.APPROVED, null)
+            supply.supplyStateHistory = supply.supplyStateHistory.plus(supplyHistory)
+            supplyHistory.supply = supply
+        } else if (status == SupplyStatus.DELIVERED && organizationBranch.organization?.role == OrganizationRole.WORKER) {
+            val supplyHistory = SupplyStateHistory(SupplyStatus.SUPPLY_ACCEPTED, null)
+            supply.supplyStateHistory = supply.supplyStateHistory.plus(supplyHistory)
+            supplyHistory.supply = supply
+            supply.toStorageItem.quantity = supply.toStorageItem.quantity!! + supply.quantity
+            supply.toStorageItem.isHidden = false
+            storageItemsRepository.save(supply.toStorageItem)
+        }
+        supplyRepository.save(supply)
+    }
+
+    private fun decline(supply: Supply, organizationBranch: OrganizationBranch) {
+        val status = supply.supplyStateHistory.stream().sorted { o1, o2 -> o2.time.compareTo(o1.time) }.findFirst().get().status
+        if (status == SupplyStatus.PENDING) {
+            val supplyHistory = SupplyStateHistory(SupplyStatus.DENIED, null)
+            supply.supplyStateHistory = supply.supplyStateHistory.plus(supplyHistory)
+            supplyHistory.supply = supply
+        }
+        supplyRepository.save(supply)
+    }
 }

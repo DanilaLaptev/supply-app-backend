@@ -11,7 +11,6 @@ data class ProductDto(
         var image: String?
 ) {
     companion object {
-
         fun fromEntity(product: Product) : ProductDto{
             return ProductDto(
                     product.id,
@@ -21,6 +20,5 @@ data class ProductDto(
                     product.image
             )
         }
-
     }
 }

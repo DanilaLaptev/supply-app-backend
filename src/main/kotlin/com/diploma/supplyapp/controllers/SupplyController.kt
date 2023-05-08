@@ -1,6 +1,5 @@
 package com.diploma.supplyapp.controllers
 
-import com.diploma.supplyapp.dto.FilterDto
 import com.diploma.supplyapp.dto.SupplyDto
 import com.diploma.supplyapp.services.SupplyService
 import org.springframework.http.ResponseEntity
@@ -12,7 +11,6 @@ import java.time.LocalDateTime
 class SupplyController(
         val supplyService: SupplyService
 ) {
-
     @PostMapping("/")
     fun createSupply(@RequestBody dto: SupplyDto, @RequestAttribute("id") id: Long) : ResponseEntity<Void> {
         supplyService.createSupply(dto, id)
@@ -35,9 +33,21 @@ class SupplyController(
         return ResponseEntity.ok().build()
     }
 
+    @PostMapping("/group/{groupId}/decline")
+    fun declineSuppliesGroup(@RequestAttribute("id") organizationId: Long, @PathVariable groupId: Long, @RequestParam organizationBranch: Long): ResponseEntity<Void>{
+        supplyService.declineSuppliesGroup(organizationId, groupId, organizationBranch)
+        return ResponseEntity.ok().build()
+    }
+
     @PostMapping("{id}/accept")
     fun acceptSupply(@RequestAttribute("id") organizationId: Long, @PathVariable id: Long, @RequestParam organizationBranch: Long): ResponseEntity<Void>{
         supplyService.acceptSupply(organizationId, id, organizationBranch)
+        return ResponseEntity.ok().build()
+    }
+
+    @PostMapping("/group/{groupId}/accept")
+    fun acceptSuppliesGroup(@RequestAttribute("id") organizationId: Long, @PathVariable groupId: Long, @RequestParam organizationBranch: Long): ResponseEntity<Void>{
+        supplyService.acceptSuppliesGroup(organizationId, groupId, organizationBranch)
         return ResponseEntity.ok().build()
     }
 }

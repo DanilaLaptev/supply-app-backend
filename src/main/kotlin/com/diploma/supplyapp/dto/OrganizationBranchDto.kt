@@ -10,7 +10,6 @@ data class OrganizationBranchDto (
         var contactPersons: List<ContactPersonDto>
 ) {
     companion object {
-
         fun fromEntity(organizationBranch: OrganizationBranch) : OrganizationBranchDto {
             return OrganizationBranchDto(
                     id = organizationBranch.id,
@@ -20,6 +19,5 @@ data class OrganizationBranchDto (
                     contactPersons = organizationBranch.contactPersons.map { ContactPersonDto.fromEntity(it) }
             )
         }
-
     }
 }

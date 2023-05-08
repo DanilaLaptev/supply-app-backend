@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/auth")
-class AuthorizationController (val authorizationService: AuthorizationService) {
-
+class AuthorizationController (
+        val authorizationService: AuthorizationService
+) {
     @GetMapping("/check")
     fun check(@RequestAttribute("id") organizationId: Long) : ResponseEntity<AuthorizationDto>? {
         return ResponseEntity.ok(authorizationService.check(organizationId))
@@ -28,5 +29,4 @@ class AuthorizationController (val authorizationService: AuthorizationService) {
     fun login(@RequestBody authorizationDto: AuthorizationDto) : ResponseEntity<AuthorizationDto>? {
         return ResponseEntity.ok(authorizationService.login(authorizationDto))
     }
-
 }

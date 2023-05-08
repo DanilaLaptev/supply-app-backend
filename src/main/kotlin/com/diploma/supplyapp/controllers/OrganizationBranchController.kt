@@ -12,7 +12,6 @@ class OrganizationBranchController (
         val organizationBranchService: OrganizationBranchService,
         val contactPersonService: ContactPersonService
 ) {
-
     @PostMapping("/")
     fun createOrganizationBranch(@RequestBody organizationBranchDto: OrganizationBranchDto, @RequestAttribute("id") organizationId: Long) : ResponseEntity<OrganizationBranchDto> {
         return ResponseEntity.ok(organizationBranchService.createBranch(organizationId, organizationBranchDto))
@@ -38,5 +37,10 @@ class OrganizationBranchController (
     fun addStorageItems(@PathVariable branchId: Long, @RequestAttribute("id") organizationId: Long, @RequestBody items: List<StorageItemDto>): ResponseEntity<Void> {
         organizationBranchService.addStorageItems(branchId, organizationId, items)
         return ResponseEntity.ok().build()
+    }
+
+    @PatchMapping("/{branchId}/products/")
+    fun updateStorageItem(@PathVariable branchId: Long, @RequestAttribute("id") organizationId: Long, @RequestBody item: StorageItemDto): ResponseEntity<StorageItemDto> {
+        return ResponseEntity.ok(organizationBranchService.updateStorageItem(branchId, organizationId, item))
     }
 }

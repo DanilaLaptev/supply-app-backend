@@ -5,7 +5,6 @@ import com.diploma.supplyapp.dto.OrganizationBranchDto
 import com.diploma.supplyapp.dto.PageDto
 import com.diploma.supplyapp.dto.StorageItemDto
 import com.diploma.supplyapp.entities.OrganizationBranch
-import com.diploma.supplyapp.entities.Product
 import com.diploma.supplyapp.entities.StorageItem
 import com.diploma.supplyapp.enums.ProductType
 import com.diploma.supplyapp.repositories.OrganizationBranchRepository
@@ -21,7 +20,8 @@ class OrganizationBranchServiceImpl (
         val productRepository: ProductRepository,
         val storageItemsRepository: StorageItemsRepository,
         val organizationRepository: OrganizationRepository,
-        val organizationBranchRepository: OrganizationBranchRepository): OrganizationBranchService {
+        val organizationBranchRepository: OrganizationBranchRepository
+): OrganizationBranchService {
 
     override fun createBranch(organizationId: Long, organizationBranchDto: OrganizationBranchDto): OrganizationBranchDto {
         val organization = organizationRepository.findById(organizationId).orElseThrow()
@@ -78,5 +78,16 @@ class OrganizationBranchServiceImpl (
             product.quantity = it.quantity ?: product.quantity
             storageItemsRepository.save(product)
         }
+    }
+
+    override fun updateStorageItem(branchId: Long, organizationId: Long, item: StorageItemDto): StorageItemDto {
+        val organizationBranch = organizationBranchRepository.findByIdAndOrganizationId(branchId, organizationId).orElseThrow()
+        val product = storageItemsRepository.findStorageItemByOrganizationBranchIdAndId(branchId, item.id!!).orElseThrow()
+
+        product?.description = item.description ?: product.description
+        product.price = item.price ?: product.price
+        product.isHidden = item.isHidden ?: product.isHidden
+        val storageItem = storageItemsRepository.save(product)
+        return StorageItemDto.fromEntity(storageItem)
     }
 }

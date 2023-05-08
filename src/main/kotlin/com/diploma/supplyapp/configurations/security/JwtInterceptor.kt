@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 
 @Component
-class JwtInterceptor (val jwtProvider: JwtProvider): HandlerInterceptor {
+class JwtInterceptor (
+        val jwtProvider: JwtProvider
+): HandlerInterceptor {
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         val jwtToken = SecurityContextHolder.getContext().authentication.credentials as String
         if("" != jwtToken && jwtProvider.validateToken(jwtToken)) {
