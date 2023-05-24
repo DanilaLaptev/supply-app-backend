@@ -1,12 +1,6 @@
 package com.diploma.supplyapp.entities
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.OneToMany
+import jakarta.persistence.*
 
 @Entity
 class OrganizationBranch (
@@ -17,7 +11,7 @@ class OrganizationBranch (
         @JoinColumn(name = "organization_id")
         var organization: Organization?,
         @OneToMany(targetEntity = ContactPerson::class, mappedBy = "organizationBranch")
-        var contactPersons: List<ContactPerson>,
+        var contactPeople: List<ContactPerson>,
         @OneToMany(mappedBy = "organizationBranch")
         var storageItems: List<StorageItem>
 ) {

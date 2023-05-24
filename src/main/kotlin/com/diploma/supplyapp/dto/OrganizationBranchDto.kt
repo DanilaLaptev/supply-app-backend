@@ -7,7 +7,7 @@ data class OrganizationBranchDto (
         var addressName: String?,
         var longitude: Double?,
         var latitude: Double?,
-        var contactPersons: List<ContactPersonDto>
+        var contactPeople: List<ContactPersonDto>
 ) {
     companion object {
         fun fromEntity(organizationBranch: OrganizationBranch) : OrganizationBranchDto {
@@ -16,7 +16,7 @@ data class OrganizationBranchDto (
                     addressName = organizationBranch.addressName,
                     longitude = organizationBranch.longitude,
                     latitude = organizationBranch.latitude,
-                    contactPersons = organizationBranch.contactPersons.map { ContactPersonDto.fromEntity(it) }
+                    contactPeople = organizationBranch.contactPeople.map { ContactPersonDto.fromEntity(it) }
             )
         }
     }

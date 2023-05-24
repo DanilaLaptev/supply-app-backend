@@ -8,12 +8,12 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import java.util.Optional
+import java.util.*
 
 @Repository
 interface OrganizationBranchRepository : JpaRepository<OrganizationBranch, Long> {
 
-    @Query("select ob from OrganizationBranch ob join fetch ob.contactPersons where ob in :branches")
+    @Query("select ob from OrganizationBranch ob join fetch ob.contactPeople where ob in :branches")
     fun fetchAllContactPersons(branches: List<OrganizationBranch>) : List<OrganizationBranch>
 
     fun findByIdAndOrganizationId(id: Long, organizationId: Long) :Optional<OrganizationBranch>

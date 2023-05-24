@@ -27,7 +27,7 @@ class OrganizationBranchServiceImpl (
         val organization = organizationRepository.findById(organizationId).orElseThrow()
         val organizationBranch = OrganizationBranch(
                 addressName = organizationBranchDto.addressName,
-                contactPersons = ArrayList(),
+                contactPeople = ArrayList(),
                 latitude = organizationBranchDto.latitude,
                 longitude = organizationBranchDto.longitude,
                 organization = organization,

@@ -47,6 +47,27 @@ class SupplyServiceImpl (
         }
     }
 
+    override fun sellSupply(dto: SupplyDto, id: Long) {
+        val organizationBranch = organizationBranchRepository.findByIdAndOrganizationId(dto.fromBranch!!, id).orElseThrow()
+        val groupId = supplyRepository.generateGroupId() + 1
+        dto.items?.forEach{
+            val fromStorageItem = storageItemsRepository.findById(it.id!!).get()
+            val supplyHistory = SupplyStateHistory(SupplyStatus.SUPPLY_ACCEPTED, null)
+            val supply = Supply(
+                    fromStorageItem.price!!,
+                    it.quantity!!,
+                    groupId,
+                    dto.deliveryTime!!,
+                    fromStorageItem,
+                    StorageItem(null, null, null, null, null, null, listOf(), listOf(), ),
+                    listOf(supplyHistory))
+            supplyHistory.supply = supply
+            supply.fromStorageItem.quantity = supply.fromStorageItem.quantity!! - supply.quantity
+            storageItemsRepository.save(supply.toStorageItem)
+            supplyRepository.save(supply)
+        }
+    }
+
     override fun getSupply(
             startDate: LocalDateTime?,
             endDate: LocalDateTime?,
@@ -68,12 +89,12 @@ class SupplyServiceImpl (
         return result.groupBy ({it.groupId}, {it})
                 .map {
                     SupplyDto(
-                            it.value[0].fromStorageItem.organizationBranch!!.id,
-                            it.value[0].toStorageItem.organizationBranch!!.id,
+                            it.value[0].fromStorageItem.organizationBranch?.id,
+                            it.value[0].toStorageItem.organizationBranch?.id,
                             it.value[0].deliveryTime,
                             it.key,
                             it.value.map { it2 -> StorageItemDto(
-                                    it2.toStorageItem.product!!.id,
+                                    it2.toStorageItem.product?.id,
                                     it2.price,
                                     null,
                                     it2.quantity,

@@ -6,6 +6,8 @@ import java.time.LocalDateTime
 interface SupplyService {
     fun createSupply(dto: SupplyDto, id: Long)
 
+    fun sellSupply(dto: SupplyDto, id: Long)
+
     fun getSupply(startDate: LocalDateTime?,
                   endDate: LocalDateTime?,
                   outgoingSupply: Boolean?,

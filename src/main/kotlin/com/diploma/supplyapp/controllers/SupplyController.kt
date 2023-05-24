@@ -17,6 +17,12 @@ class SupplyController(
         return ResponseEntity.ok().build()
     }
 
+    @PostMapping("/sell")
+    fun sellItems(@RequestBody dto: SupplyDto, @RequestAttribute("id") id: Long) : ResponseEntity<Void> {
+        supplyService.sellSupply(dto, id)
+        return ResponseEntity.ok().build()
+    }
+
     @GetMapping("/")
     fun getSupply(
             @RequestParam(required = false) startDate: LocalDateTime?,

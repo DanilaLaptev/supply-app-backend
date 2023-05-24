@@ -9,5 +9,6 @@ enum class ProductType {
     VEGETABLES,
     FRUITS,
     BERRIES,
-    DRINKS
+    DRINKS,
+    OTHER
 }
